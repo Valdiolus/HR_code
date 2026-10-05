@@ -2,6 +2,9 @@
 #define __ROBSTRIDE_H__
 
 #include "main.h"
+#include "stm32h723xx.h"
+#include "stm32h7xx_hal.h"
+#include "stm32h7xx_hal_fdcan.h"
 
 /* Control mode characters */
 #define Set_mode          'j'

@@ -1,5 +1,6 @@
 #include "Robstride.h"
 #include <string.h>
+#include <stdint.h>
 
 #define P_MIN  -12.5f
 #define P_MAX   12.5f
@@ -11,6 +12,10 @@
 #define KD_MAX   5.0f
 #define T_MIN  -17.0f
 #define T_MAX   17.0f
+
+/* RobStride knee motor IDs */
+extern uint8_t right_knee_motor_addr;
+extern uint8_t left_knee_motor_addr; //not 0x3E
 
 static const uint16_t Index_List[] = {
     0x7005, 0x7006, 0x700A, 0x700B, 0x7010, 0x7011, 0x7014,

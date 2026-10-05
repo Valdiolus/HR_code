@@ -2,6 +2,51 @@
 #define __STEADYWIN_H__
 
 #include "main.h"
+#include "stm32h723xx.h"
+#include "stm32h7xx_hal.h"
+#include "stm32h7xx_hal_fdcan.h"
+#include <string.h>
+
+/*
+READ PARAMETERS (8 total)
+These are parameters you can query from the motor:
+Code	Parameter	Returns
+0xA0	Version Info	Boot, Software, Hardware, Protocol versions
+0xA1	Current	Q-axis current (0.001A units)
+0xA2	Speed	Rotation speed (0.01 RPM units)
+0xA3	Angles	Single-turn & multi-turn absolute angles
+0xA4	Multi-Read	Temperature, Current, Speed, Angle (combined)
+0xAE	Status	Bus voltage, current, temp, mode, fault code ⭐ MOST COMPLETE
+0xB0	Motor Info	Pole pairs, torque constant, gear ratio
+0xF1	MIT Mode	Position, speed, torque (MIT protocol mode)
+0xB6-0xB9	PID Gains	Position/Velocity loop Kp & Ki gains (read/write)
+*/
+
+/*
+WRITE PARAMETERS (13 total control/config)
+Configuration Parameters (Survive Reboot: 0xB1, 0xF0 only):
+Code	Parameter	Format
+0xB1	Set Origin	Mark current position as home
+0xB2	Max Speed	uint32_t (0.01 RPM) - Position mode limit
+0xB3	Max Current	uint32_t (0.001A) - Current limit
+0xB4	Current Slope	uint32_t (0.001A/s) - Ramp rate
+0xB5	Acceleration	uint32_t (0.01 RPM/s) - Speed ramp
+0xB6-0xB9	PID Gains	uint32_t - Proportional/Integral gains
+0xF0	MIT Config	Pos_Max, Vel_Max, T_Max limits
+*/
+
+/*
+Control Commands (Real-time, lost on power cycle):
+Code	Parameter	Format
+0x00	Reboot	Restart controller
+0xC0	Current	int32_t (0.001A) - Torque command
+0xC1	Speed	int32_t (0.01 RPM) - Speed setpoint
+0xC2	Abs Position	int32_t - Move to absolute position
+0xC3	Rel Position	int32_t - Relative movement
+0xC4	Go to Origin	Return home (≤180°)
+0xCE	Brake	Holding brake control
+0xCF	Disable	Motor free-spin mode
+*/
 
 /* ---- Command codes ---- */
 #define SW_CMD_REBOOT           0x00

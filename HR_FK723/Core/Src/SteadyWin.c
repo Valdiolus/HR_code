@@ -1,5 +1,4 @@
 #include "SteadyWin.h"
-#include <string.h>
 
 /* ---------- FDCAN transmit helper (Standard ID) ---------- */
 

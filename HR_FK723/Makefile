@@ -42,6 +42,15 @@ X-CUBE-AI/App/network_data.c \
 Core/Src/main.c \
 Core/Src/stm32h7xx_it.c \
 Core/Src/stm32h7xx_hal_msp.c \
+Core/Src/gpio.c \
+Core/Src/rcc.c \
+Core/Src/mpu.c \
+Core/Src/can.c \
+Core/Src/uart.c \
+Core/Src/motors.c \
+Core/Src/SteadyWin.c \
+Core/Src/Robstride01.c \
+Core/Src/nn.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c \
@@ -65,10 +74,6 @@ Core/Src/system_stm32h7xx.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_fdcan.c \
-RS/Robstride01.c \
-SteadyWin/SteadyWin.c \
-GL_A22/GL_A22.c \
-wit_sdk/wit_c_sdk.c \
 
 
 
