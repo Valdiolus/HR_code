@@ -57,7 +57,10 @@ uint32_t loop_debug_counter = 0;
  *   → measure loop time, restart at S0
  */
 
-
+/*
+Standart 5 steps Loop without AI - 400Hz
+With AI 1ms - 250Hz
+*/
 
 int main(void) //CHECK ALL FUNCTIONS HERE!!!!
 {
@@ -95,7 +98,7 @@ int main(void) //CHECK ALL FUNCTIONS HERE!!!!
   // AI init
   AI_init();// Initialize AI module
 
-  HAL_Delay(5000);
+  HAL_Delay(2000);
 
   RightLeg_RobStride_CAN_Init();   /* sets up FDCAN3 filters, starts bus, inits right RobStride motor */
   RightLeg_SteadyWin_CAN_Init();   /* inits right-leg SteadyWin motors on FDCAN3 */
@@ -115,6 +118,8 @@ int main(void) //CHECK ALL FUNCTIONS HERE!!!!
 
   // Run a simple movement program to test motors
   //Simple_movement_program();
+
+  uint32_t cpu_mhz = SystemCoreClock / 1000000U;
 
   /* The loop only advances on CAN replies, so the first requests are sent here. */
   loop_active = 1;
@@ -180,16 +185,12 @@ int main(void) //CHECK ALL FUNCTIONS HERE!!!!
       usart_last_tick = current_tick;
       uint32_t seconds = current_tick / 1000U;
       uint32_t milliseconds = current_tick % 1000U;
-      uint32_t cpu_mhz = SystemCoreClock / 1000000U;
+      
 
       /* ---- Snapshot loop stats (atomic-ish read from ISR counters) ---- */
       uint32_t cnt  = loop_count;
       uint32_t cmin = loop_cyc_min;
       uint32_t cmax = loop_cyc_max;
-      /* Reset for next 1-second window */
-      loop_count   = 0;
-      loop_cyc_min = UINT32_MAX;
-      loop_cyc_max = 0;
 
       uint32_t loop_min_us = (cpu_mhz > 0 && cmin != UINT32_MAX) ? cmin / cpu_mhz : 0;
       uint32_t loop_max_us = (cpu_mhz > 0 && cmax > 0) ? cmax / cpu_mhz : 0;
@@ -199,16 +200,14 @@ int main(void) //CHECK ALL FUNCTIONS HERE!!!!
         (unsigned long)loop_timeouts, loop_timeout_state, (unsigned long)loop_timeout_missing,
         (unsigned long)loop_dead_sw, (unsigned long)loop_dead_rs);
 
-
-
       for (int leg = 0; leg < 2; leg++)
       {
         /* SteadyWin feedback: 0.01 RPM units, angle raw*(360/16384) deg */
         for (int i = 0; i < SW_MOTOR_COUNT; i++)
         {
-          float sw_spd  = Return_current_SteadyWin_Speed(sw_legs[leg][i]);
+          float sw_spd  = Return_current_SteadyWin_Speed(sw_legs[leg][i])/100;
           float sw_ang  = Return_current_SteadyWin_Angle(sw_legs[leg][i]);
-          float sw_cur  = Return_current_SteadyWin_current(sw_legs[leg][i]);
+          float sw_cur  = Return_current_SteadyWin_current(sw_legs[leg][i])/1000;
           float sw_temp = Return_current_SteadyWin_temp(sw_legs[leg][i]);
           uart_printf("  %s %-9s: %.1f RPM %.1f° %.2fA %.1f°C\r\n",
             leg_tag[leg], sw_names[i],
@@ -224,6 +223,11 @@ int main(void) //CHECK ALL FUNCTIONS HERE!!!!
           leg_tag[leg], "knee", (double)rs_spd, (double)rs_ang, (double)rs_trq, (double)rs_temp);
       }
       //uart_printf("[TICK] %lu.%03lu s\r\n", (unsigned long)seconds, (unsigned long)milliseconds);
+
+      /* Reset for next 1-second window */
+      loop_count   = 0;
+      loop_cyc_min = UINT32_MAX;
+      loop_cyc_max = 0;
     }
 
     if ((current_tick - led_last_tick) >= led_toggle_interval)
@@ -235,16 +239,16 @@ int main(void) //CHECK ALL FUNCTIONS HERE!!!!
     //WIT_UART_AccelerationTask();
     //WIT_IMU_PrintIfDue();
 
-      if (loop_active && loop_state == LOOP_S_AI)
-      {
-        AI_RunInference();
-        loop_rx_mask = 0;
-        loop_last_tick = HAL_GetTick();
-        loop_state = LOOP_S_SW_WRITE;
-        for (int leg = 0; leg < 2; leg++)
-          for (int i = 0; i < SW_MOTOR_COUNT; i++)
-            SteadyWin_SpeedControl(&sw_legs[leg][i], 0);
-      }
+    if (loop_active && loop_state == LOOP_S_AI)
+    {
+      HAL_Delay(1);  // simulate AI inference time of 1 ms
+      loop_rx_mask = 0;
+      loop_last_tick = HAL_GetTick();
+      loop_state = LOOP_S_SW_WRITE;
+      for (int leg = 0; leg < 2; leg++)
+        for (int i = 0; i < SW_MOTOR_COUNT; i++)
+          SteadyWin_SpeedControl(&sw_legs[leg][i], 0);
+    }
 
   }
 }

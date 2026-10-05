@@ -366,18 +366,33 @@ void RightLeg_SteadyWin_CAN_Init(void) {
     HAL_Delay(50);
 
     if (right_leg_can_rx_new) {
-      right_leg_can_rx_new = 0;
+      //Read status
+      SteadyWin_ReadStatus(&right_leg_sw_motors[i]);
+      HAL_Delay(20);
+      /*right_leg_can_rx_new = 0;
       uint16_t boot_ver = (uint16_t)right_leg_can_rx_data[1] | ((uint16_t)right_leg_can_rx_data[2] << 8);
       uint16_t app_ver  = (uint16_t)right_leg_can_rx_data[3] | ((uint16_t)right_leg_can_rx_data[4] << 8);
       uint16_t hw_ver   = (uint16_t)right_leg_can_rx_data[5] | ((uint16_t)right_leg_can_rx_data[6] << 8);
       uint8_t  can_ver  = right_leg_can_rx_data[7];
       uart_printf("[R-SW 0x%02X %-9s] OK  (Boot=%u App=%u HW=%u CAN=%u)\r\n",
         right_leg_sw_motors[i].dev_addr, leg_sw_joint_names[i],
-        boot_ver, app_ver, hw_ver, can_ver);
+        boot_ver, app_ver, hw_ver, can_ver);*/
+    //Print status
+    uart_printf("[R-SW 0x%02X %-9s] OK Status: BusV=%u BusI=%u Temp=%u Mode=%u Fault=%u\r\n",
+      right_leg_sw_motors[i].dev_addr, leg_sw_joint_names[i],
+      right_leg_sw_motors[i].fb.bus_voltage_raw/100,
+      right_leg_sw_motors[i].fb.bus_current_raw/100,
+      right_leg_sw_motors[i].fb.temperature,
+      right_leg_sw_motors[i].fb.run_mode,
+      right_leg_sw_motors[i].fb.fault_code);
     } else {
       uart_printf("[R-SW 0x%02X %-9s] NO RESPONSE\r\n",
         right_leg_sw_motors[i].dev_addr, leg_sw_joint_names[i]);
     }
+
+
+
+
 
     /* Clear any faults */
     SteadyWin_ClearFault(&right_leg_sw_motors[i]);
@@ -402,18 +417,33 @@ void LeftLeg_SteadyWin_CAN_Init(void) {
     HAL_Delay(50);
 
     if (left_leg_can_rx_new) {
+      //Read status
+      SteadyWin_ReadStatus(&left_leg_sw_motors[i]);
+      HAL_Delay(20);
       left_leg_can_rx_new = 0;
-      uint16_t boot_ver = (uint16_t)left_leg_can_rx_data[1] | ((uint16_t)left_leg_can_rx_data[2] << 8);
+      /*uint16_t boot_ver = (uint16_t)left_leg_can_rx_data[1] | ((uint16_t)left_leg_can_rx_data[2] << 8);
       uint16_t app_ver  = (uint16_t)left_leg_can_rx_data[3] | ((uint16_t)left_leg_can_rx_data[4] << 8);
       uint16_t hw_ver   = (uint16_t)left_leg_can_rx_data[5] | ((uint16_t)left_leg_can_rx_data[6] << 8);
       uint8_t  can_ver  = left_leg_can_rx_data[7];
       uart_printf("[L-SW 0x%02X %-9s] OK  (Boot=%u App=%u HW=%u CAN=%u)\r\n",
         left_leg_sw_motors[i].dev_addr, leg_sw_joint_names[i],
-        boot_ver, app_ver, hw_ver, can_ver);
+        boot_ver, app_ver, hw_ver, can_ver);*/
+      //Print status
+      uart_printf("[L-SW 0x%02X %-9s] OK Status: BusV=%u BusI=%u Temp=%u Mode=%u Fault=%u\r\n",
+        left_leg_sw_motors[i].dev_addr, leg_sw_joint_names[i],
+        left_leg_sw_motors[i].fb.bus_voltage_raw/100,
+        left_leg_sw_motors[i].fb.bus_current_raw/100,
+        left_leg_sw_motors[i].fb.temperature,
+        left_leg_sw_motors[i].fb.run_mode,
+        left_leg_sw_motors[i].fb.fault_code);
     } else {
       uart_printf("[L-SW 0x%02X %-9s] NO RESPONSE\r\n",
         left_leg_sw_motors[i].dev_addr, leg_sw_joint_names[i]);
     }
+
+
+
+
 
     SteadyWin_ClearFault(&left_leg_sw_motors[i]);
     HAL_Delay(20);
